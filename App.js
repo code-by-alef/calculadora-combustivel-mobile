@@ -3,21 +3,32 @@ import { useState } from 'react';
 import logo from './assets/gas-station.png';
 
 export default function App() {
-  const [precoAlcool, setPrecoAlcool] = useState();
-  const [precoGasolina, setPrecoGasolina] = useState();
+  const [precoAlcool, setPrecoAlcool] = useState('');
+  const [precoGasolina, setPrecoGasolina] = useState('');
+  const [showScreen, setShowScreen] = useState('');
 
 function calcular(){
   if(precoAlcool && precoGasolina){
-    if(precoAlcool / precoGasolina < 0.7) {
-      alert("É mais vantajoso abastecer com ÁLCOOL!");
+  
+    const valorAlcool = parseFloat(precoAlcool.replace(',', '.'));
+    const valorGasolina = parseFloat(precoGasolina.replace(',', '.'));
+
+    if(valorAlcool <= 0 || valorGasolina <= 0) {
+      setShowScreen("O valor do álcool e da gasolina devem ser maior que zero");
+      return;
+    }
+
+    if(valorAlcool / valorGasolina < 0.7) {
+      setShowScreen("É mais vantajoso abastecer com ÁLCOOL!");
 
     } else {
-      alert("É mais vantajoso abastecer com GASOLINA!");
+      setShowScreen("É mais vantajoso abastecer com GASOLINA!");
     }
   } else {
-    alert("Preencha o preço do Álcool e da Gasolina");
+      setShowScreen("Preencha o preço do Álcool e da Gasolina");
   }
 };
+
 return (
     <View style={styles.view}>
       <Image 
@@ -31,7 +42,11 @@ return (
         placeholder="Digite o valor do Álcool:"
         keyboardType='numeric'
         value={precoAlcool}
-        onChangeText={(value) => setPrecoAlcool(value)}
+        onChangeText={(value) => {
+          const cleanedValue = value.replace(/[^0-9.,]/g,'');
+          setPrecoAlcool(cleanedValue);
+          setShowScreen(null);
+        }}
         style={styles.textInput}
       />
       <Text style={styles.label}>Gasolina (Preço por litro)</Text>
@@ -40,13 +55,18 @@ return (
         keyboardType='numeric'
         value={precoGasolina}
         style={styles.textInput}
-        onChangeText={(value) => setPrecoGasolina(value)}
+        onChangeText={(value) => {
+           const cleanedValue = value.replace(/[^0-9.,]/g,'');
+          setPrecoGasolina(cleanedValue);
+          setShowScreen(null);
+        }}
       />
     <Button 
     title='Calcular'
     onPress={calcular}
     color={"#ffd23b"}
     />
+    {showScreen ? (<Text style={styles.show}>{showScreen}</Text>) : null }
     </View>
   );
 };
@@ -81,5 +101,12 @@ const styles = StyleSheet.create ({
       fontSize:16,
       fontWeight:'bold',
       marginTop:14
+    },
+    show:{
+      marginTop:20,
+      color:'#fff',
+      fontSize:17,
+      justifyContent:'center',
+      fontWeight:'bold'
     }
   });
