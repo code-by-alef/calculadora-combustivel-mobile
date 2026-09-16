@@ -1,6 +1,7 @@
-import { StyleSheet, Text, View, TextInput, Button,Image}from 'react-native';
+import { StyleSheet, Text, View, TextInput, Button,Image, SafeAreaViewBase}from 'react-native';
 import { useState } from 'react';
 import logo from './assets/gas-station.png';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 export default function App() {
   const [precoAlcool, setPrecoAlcool] = useState('');
@@ -30,53 +31,98 @@ function calcular(){
 };
 
 return (
-    <View style={styles.view}>
-      <Image 
-      source={logo}
-      style={styles.logo}      
-      /> 
-      <Text style={styles.title}>Qual a melhor escolha ?</Text>
+  <SafeAreaProvider>
+    <SafeAreaView style={styles.areaview}>
+      <View style={styles.view}>
+        <Image 
+        source={logo}
+        style={styles.logo}      
+        /> 
+        <Text style={styles.title}>Qual a melhor escolha ?</Text>
 
-      <Text style={styles.label}>Álcool (Preço por litro)</Text>
-      <TextInput
-        placeholder="Digite o valor do Álcool:"
-        keyboardType='numeric'
-        value={precoAlcool}
-        onChangeText={(value) => {
-          const cleanedValue = value.replace(/[^0-9.,]/g,'');
-          setPrecoAlcool(cleanedValue);
-          setShowScreen(null);
-        }}
-        style={styles.textInput}
-      />
-      <Text style={styles.label}>Gasolina (Preço por litro)</Text>
-      <TextInput
-        placeholder="Digite o valor da Gasolina"
-        keyboardType='numeric'
-        value={precoGasolina}
-        style={styles.textInput}
-        onChangeText={(value) => {
-           const cleanedValue = value.replace(/[^0-9.,]/g,'');
-          setPrecoGasolina(cleanedValue);
-          setShowScreen(null);
-        }}
-      />
-    <Button 
-    title='Calcular'
-    onPress={calcular}
-    color={"#ffd23b"}
-    />
-    {showScreen ? (<Text style={styles.show}>{showScreen}</Text>) : null }
-    </View>
+        <Text style={styles.label}>Álcool (Preço por litro)</Text>
+        <TextInput
+          placeholder="Digite o valor do Álcool:"
+          keyboardType='numeric'
+          value={precoAlcool}
+          onChangeText={(value) => {
+            let cleanedValue = value.replace(/[^0-9.,]/g,'').replace('.',',');
+
+            if (cleanedValue.startsWith(',')) {
+              cleanedValue = cleanedValue.substring(1);
+            }
+
+            if(cleanedValue.length > 1 && cleanedValue.startsWith('0') && cleanedValue[1] !== ',') {
+              cleanedValue = cleanedValue.substring(1);
+            }
+
+            const clean = cleanedValue.split(',');
+            
+            if (clean.length > 2){
+              return;
+            }
+
+            if (clean.length === 2 && clean[1].length > 2) {
+              return;
+            }
+
+            setPrecoAlcool(cleanedValue);
+            setShowScreen(null);
+          }}
+          style={styles.textInput}
+          />
+         <Text style={styles.label}>Gasolina (Preço por litro)</Text>
+          <TextInput
+          placeholder="Digite o valor da Gasolina"
+          keyboardType='numeric'
+          value={precoGasolina}
+          style={styles.textInput}
+          onChangeText={(value) => {
+            let cleanedValue = value.replace(/[^0-9.,]/g,'').replace('.',',');
+
+            if (cleanedValue.startsWith(',')) {
+              cleanedValue = cleanedValue.substring(1);
+            }
+
+            if(cleanedValue.length > 1 && cleanedValue.startsWith('0') && cleanedValue[1] !== ',') {
+              cleanedValue = cleanedValue.substring(1);
+            }
+
+            const clean = cleanedValue.split(',');
+            
+            if (clean.length > 2){
+              return;
+            }
+
+            if (clean.length === 2 && clean[1].length > 2) {
+              return;
+            }
+            setPrecoGasolina(cleanedValue);
+            setShowScreen(null);
+          }}
+        />
+        <Button 
+        title='Calcular'
+        onPress={calcular}
+        color={"#ffd23b"}
+        />
+        {showScreen ? (<Text style={styles.show}>{showScreen}</Text>) : null }
+      </View>
+    </SafeAreaView>
+  </SafeAreaProvider>
   );
 };
 
 const styles = StyleSheet.create ({
+    areaview:{
+      backgroundColor:'#282c34',
+      flex:1
+    },
     view:{
       backgroundColor:'#282c34',
       alignItems:'center',
       flex:1,
-      paddingTop:80
+      paddingTop:40
     },
     textInput:{
       padding: 5,
